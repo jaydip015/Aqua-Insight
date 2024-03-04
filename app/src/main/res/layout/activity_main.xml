@@ -4,7 +4,8 @@
     xmlns:app="http://schemas.android.com/tools"
     app:context=".MainActivity"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    app:ignore="NamespaceTypo">
 
     <fragment xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:map="http://schemas.android.com/apk/res-auto"
@@ -15,17 +16,51 @@
     map:uiScrollGestures="true"
         map:cameraTilt="30"/>
 
+    <RelativeLayout
+        android:id="@+id/rl"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/white_border"
+        android:elevation="18dp"
+        map:layout_constraintEnd_toEndOf="parent"
+        map:layout_constraintStart_toStartOf="parent"
+        map:layout_constraintTop_toTopOf="parent">
 
-<ImageView
-android:layout_width="40dp"
-android:layout_height="40dp"
-map:layout_constraintEnd_toEndOf="parent"
-map:layout_constraintTop_toTopOf="parent"
-android:src="@drawable/ic_baseline_my_location_24"
-android:id="@+id/gps"
-android:layout_marginTop="20dp"
-android:layout_marginEnd="5dp"
-android:scaleType="centerCrop"
-    />
+
+
+        <EditText
+            android:id="@+id/search"
+            android:drawableStart="@drawable/ic_baseline_search_24"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerVertical="true"
+            android:drawablePadding="4dp"
+            android:background="@null"
+            android:paddingStart="10dp"
+            android:singleLine="true"
+            android:hint="Search any location here"
+            android:imeOptions="actionSearch"
+            android:inputType="text"
+            android:textColor="@color/black"
+            android:textSize="15dp">
+
+        </EditText>
+    </RelativeLayout>
+
+
+    <ImageView
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        map:layout_constraintEnd_toEndOf="parent"
+        map:layout_constraintTop_toTopOf="parent"
+        android:src="@drawable/ic_baseline_my_location_24"
+        android:id="@+id/gps"
+        android:layout_marginTop="90dp"
+        android:layout_marginEnd="5dp"
+        android:scaleType="centerCrop"
+        />
 </androidx.constraintlayout.widget.ConstraintLayout>
 

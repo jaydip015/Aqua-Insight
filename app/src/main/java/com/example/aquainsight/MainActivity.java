@@ -10,32 +10,39 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.GoogleMapOptions;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 // Implement OnMapReadyCallback
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
@@ -47,6 +54,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     GoogleMap mMap;
     float DEFAULT_ZOOM = 18f;
     ImageView mylocation;
+    EditText search;
+    Marker previousMarker;
 
 
     @Override
@@ -54,6 +63,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mylocation=findViewById(R.id.gps);
+        search= findViewById(R.id.search);
         requestPermission();
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
@@ -144,6 +154,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             mMap.getUiSettings().setMyLocationButtonEnabled(false);
 
         }
+        search.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
+                if(i== EditorInfo.IME_ACTION_SEARCH || i== EditorInfo.IME_ACTION_DONE || keyEvent.getAction()==keyEvent.ACTION_DOWN || keyEvent.getAction()==keyEvent.KEYCODE_ENTER){
+                    geo_locate();
+                }
+                return false;
+            }
+        });
 
 
 //        GoogleMapOptions options=new GoogleMapOptions();
@@ -157,6 +176,24 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 //
 //        );
 //        googleMap.setLatLngBoundsForCameraTarget(BOUNDS);
+    }
+    private void geo_locate(){
+        String sresult=search.getText().toString();
+        Geocoder geocoder=new Geocoder(MainActivity.this);
+        List<Address> list=new ArrayList<>();
+        try {
+            list=geocoder.getFromLocationName(sresult,1);
+        }catch (IOException e){
+
+        }
+        if(list.size()>0){
+            Address address=list.get(0);
+            for(int i=0;i<list.size();i++){
+            Log.d("MainActivity",list.get(i).toString());}
+            moveCamera(new LatLng(address.getLatitude(),address.getLongitude()),DEFAULT_ZOOM, address.getAddressLine(0));
+
+
+        }
     }
     private boolean checkLocationEnabled() {
         LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -179,20 +216,27 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
         if (!isGpsEnabled && !isNetworkEnabled) {
-            Toast.makeText(this, "Unable to get your Current Location", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Your location is turned off, \n please Turn On", Toast.LENGTH_SHORT).show();
 
             // You can prompt the user to enable location services here
         }
         return false;
     }
     private void moveCamera(LatLng latLng, float zoom,String title) {
-
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
-        if(!title.equals("My Location")){
-            MarkerOptions options=new MarkerOptions().position(latLng).title(title);
-            mMap.addMarker(options);
-
+        if (previousMarker != null) {
+            previousMarker.remove();
         }
+
+        // Add new marker for the searched location
+        previousMarker = mMap.addMarker(new MarkerOptions().position(latLng).title(title));
+
+
+//        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
+        CameraUpdate update=CameraUpdateFactory.newLatLngZoom(latLng,zoom);
+        mMap.animateCamera(update);
+//        mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
+//        mMap.animateCamera(CameraUpdateFactory.zoomIn());
+
     }
     private void getDeviceLocation(){
 
