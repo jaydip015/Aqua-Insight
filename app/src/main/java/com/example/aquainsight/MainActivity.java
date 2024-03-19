@@ -1,6 +1,7 @@
 package com.example.aquainsight;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -39,6 +40,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -56,12 +58,18 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     ImageView mylocation;
     EditText search;
     Marker previousMarker;
-
+    public static final String TAG = "ModalBottomSheet";
+    List<Address> list=new ArrayList<>();
+    BottomSheetFragment dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+//        ActionBar actionBar = getSupportActionBar();
+//        if (actionBar != null) {
+//            actionBar.hide();
+//        }
         mylocation=findViewById(R.id.gps);
         search= findViewById(R.id.search);
         requestPermission();
@@ -75,7 +83,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
             }
         });
+        search.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
 
+                if(i== EditorInfo.IME_ACTION_SEARCH){
+                    geo_locate();
+                }
+                return false;
+            }
+        });
     }
 
     public void requestPermission() {
@@ -151,38 +168,18 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 return;
             }
             mMap.setMyLocationEnabled(true);
+            mMap.getUiSettings().setCompassEnabled(false);
             mMap.getUiSettings().setMyLocationButtonEnabled(false);
 
         }
-        search.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
-                if(i== EditorInfo.IME_ACTION_SEARCH || i== EditorInfo.IME_ACTION_DONE || keyEvent.getAction()==keyEvent.ACTION_DOWN || keyEvent.getAction()==keyEvent.KEYCODE_ENTER){
-                    geo_locate();
-                }
-                return false;
-            }
-        });
 
-
-//        GoogleMapOptions options=new GoogleMapOptions();
-//        options.mapToolbarEnabled(true);
-////        options.camera(new CameraPosition(new LatLng(0,0),0,40,10));
-//        LatLngBounds BOUNDS = new LatLngBounds(
-////                new LatLng(7.798000, 68.14712), new LatLng(37.090000, 97.34466)
-//                new LatLng(6.4626999, 68.1097), new LatLng(35.513327, 97.39535869999999)
-////                new LatLng(22.4626999, 68.1471), new LatLng(29.513327, 97.34466)
-////                new LatLng(23.63936, 68.14712), new LatLng(28.20453, 97.34466)
-//
-//        );
-//        googleMap.setLatLngBoundsForCameraTarget(BOUNDS);
     }
     private void geo_locate(){
         String sresult=search.getText().toString();
         Geocoder geocoder=new Geocoder(MainActivity.this);
-        List<Address> list=new ArrayList<>();
+
         try {
-            list=geocoder.getFromLocationName(sresult,1);
+            list=geocoder.getFromLocationName(sresult,3);
         }catch (IOException e){
 
         }
@@ -190,7 +187,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             Address address=list.get(0);
             for(int i=0;i<list.size();i++){
             Log.d("MainActivity",list.get(i).toString());}
+            Log.d("MainActivity",list.get(0).getPostalCode());
             moveCamera(new LatLng(address.getLatitude(),address.getLongitude()),DEFAULT_ZOOM, address.getAddressLine(0));
+
 
 
         }
@@ -229,13 +228,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         // Add new marker for the searched location
         previousMarker = mMap.addMarker(new MarkerOptions().position(latLng).title(title));
-
-
-//        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
         CameraUpdate update=CameraUpdateFactory.newLatLngZoom(latLng,zoom);
         mMap.animateCamera(update);
-//        mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
-//        mMap.animateCamera(CameraUpdateFactory.zoomIn());
+        //opening bottom sheet fragment
+        dialog=new BottomSheetFragment(list);
+        dialog.show(getSupportFragmentManager(),TAG);
+
+
 
     }
     private void getDeviceLocation(){

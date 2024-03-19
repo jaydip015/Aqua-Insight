@@ -62,5 +62,22 @@ public class test {
  *   get location of the user
  *   or get the location of the user selected on the map
  *   search any place and get the lat lon
+ *
+ *    Address[addressLines=[0:"LALBHAI DALPATBHAI COLLEGE OF ENGINEERING, 120, Circular Road, University Area, Ahmedabad, Gujarat 380015, India"],
+ *    feature=LALBHAI DALPATBHAI COLLEGE OF ENGINEERING,
+ *    admin=Gujarat,
+ *    sub-admin=null,
+ *    locality=Ahmedabad,
+ *    thoroughfare=Circular Road,
+ *    postalCode=380015,
+ *    countryCode=IN,
+ *    countryName=India,
+ *    hasLatitude=true,
+ *    latitude=23.0338,
+ *    hasLongitude=true,
+ *    longitude=72.546584,
+ *    phone=null,
+ *    url=null,
+ *    extras=null]
  */
 }
