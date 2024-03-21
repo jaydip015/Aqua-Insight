@@ -1,6 +1,6 @@
 package com.example.aquainsight;
 
-public class test {
+public class example_file_for_code {
     /**
      * new Handler().postDelayed(new Runnable() {
      *             @Override

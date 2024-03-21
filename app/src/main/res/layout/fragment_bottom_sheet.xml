@@ -14,40 +14,51 @@
           android:layout_height="wrap_content"
           app:layout_constraintStart_toStartOf="parent"
           app:layout_constraintTop_toTopOf="parent"
+          android:text="Main Headline"
           android:id="@+id/mainheading"
-          android:textSize="22dp"
-          android:layout_marginTop="10dp"
-          android:layout_marginStart="10dp"
-          android:textStyle="bold"/>
+          android:textSize="25dp"
+          android:layout_marginTop="15dp"
+          android:layout_marginStart="15dp"
+          android:textStyle="bold"
+          android:textColor="@color/black"/>
       <TextView
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:id="@+id/address"
+          android:text="Address Line"
           android:textSize="20dp"
           android:textColor="@color/black"
           app:layout_constraintStart_toStartOf="parent"
           app:layout_constraintTop_toBottomOf="@id/mainheading"
           android:layout_marginTop="10dp"
-          android:layout_marginStart="13dp"
+          android:layout_marginStart="15dp"
           />
       <TextView
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:id="@+id/postalcode"
+          android:text="pincode"
           app:layout_constraintStart_toStartOf="parent"
           app:layout_constraintTop_toBottomOf="@id/address"
           android:textColor="@color/black"
+          android:textSize="18dp"
           android:layout_marginTop="10dp"
-          android:layout_marginStart="13dp"
+          android:layout_marginStart="15dp"
           />
-      <ImageView
-          android:layout_width="290dp"
-          android:layout_height="290dp"
-          android:src="@drawable/round"
+
+      <Button
+          android:id="@+id/addrv"
+          android:layout_width="130dp"
+          android:layout_height="40dp"
+          android:text="Raise Issue"
+          android:padding="7dp"
+          android:textColor="@color/white"
+          android:layout_marginBottom="10dp"
+          app:layout_constraintBottom_toBottomOf="parent"
           app:layout_constraintEnd_toEndOf="parent"
           app:layout_constraintStart_toStartOf="parent"
-          app:layout_constraintBottom_toBottomOf="parent"
-          app:layout_constraintTop_toBottomOf="@id/postalcode"/>
+          app:layout_constraintTop_toBottomOf="@+id/postalcode"
+          android:background="@drawable/button_design"/>
   </androidx.constraintlayout.widget.ConstraintLayout>
 
 </FrameLayout>

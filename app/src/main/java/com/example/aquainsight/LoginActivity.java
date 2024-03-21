@@ -73,12 +73,11 @@ public class LoginActivity extends AppCompatActivity {
                     progressDialog.dismiss();
                     int i=auth.getUid().compareTo("Tha7aDZ7oXUvxEeexkqmFXRwvbv1");
                     if(i==0){
-                        startActivity(new Intent(LoginActivity.this,MainActivity.class));
+                        startActivity(new Intent(LoginActivity.this,AdminActivity.class));
                         finish();
                     }else {
-                        //change with other one
-//                        startActivity(new Intent(LoginActivity.this,FacultyActivity.class));
-//                        finish();
+                        startActivity(new Intent(LoginActivity.this,MainActivity.class));
+                        finish();
                     }
 
                 }
@@ -101,13 +100,11 @@ public class LoginActivity extends AppCompatActivity {
             int i=auth.getUid().compareTo("Tha7aDZ7oXUvxEeexkqmFXRwvbv1");
             if(i==0){
 //                        Toast.makeText(LoginActivity.this, "true", Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(LoginActivity.this,MainActivity.class));
+                startActivity(new Intent(LoginActivity.this,AdminActivity.class));
                 finish();
             }else {
-
-//change it with other one
-//                startActivity(new Intent(LoginActivity.this,FacultyActivity.class));
-//                finish();
+                startActivity(new Intent(LoginActivity.this,MainActivity.class));
+                finish();
             }
         }
     }

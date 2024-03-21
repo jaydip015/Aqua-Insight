@@ -2,11 +2,14 @@ package com.example.aquainsight;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -20,12 +23,14 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.window.OnBackInvokedDispatcher;
 
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -41,6 +46,8 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -61,15 +68,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public static final String TAG = "ModalBottomSheet";
     List<Address> list=new ArrayList<>();
     BottomSheetFragment dialog;
-
+    ActionBarDrawerToggle toggle;
+    DrawerLayout dl;
+    NavigationView nv;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-//        ActionBar actionBar = getSupportActionBar();
-//        if (actionBar != null) {
-//            actionBar.hide();
-//        }
         mylocation=findViewById(R.id.gps);
         search= findViewById(R.id.search);
         requestPermission();
@@ -80,6 +85,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onClick(View view) {
                 if(checkLocationEnabled()){
                     getDeviceLocation();
+                }else{
+                    Toast.makeText(MainActivity.this, "Your Location is turned off", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -93,8 +100,43 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 return false;
             }
         });
+//
+        //for Navigation Drawer
+        dl=findViewById(R.id.activity_main);
+        toggle =new ActionBarDrawerToggle(this,dl,R.string.open,R.string.close);
+        dl.addDrawerListener(toggle);
+        toggle.syncState();
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        nv=findViewById(R.id.nv);
+        nv.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                int id=item.getItemId();
+                if (id == R.id.Home) {
+                    Log.d("tag", "Home");
+                } else if (id==R.id.Logout) {
+                    FirebaseAuth auth;
+                    auth=FirebaseAuth.getInstance();
+                    auth.signOut();
+                    Intent i=new Intent(MainActivity.this, LoginActivity.class);
+                    startActivity(i);
+                    finish();
+
+                } else if (id==R.id.ProFile) {
+
+                }
+                return true;
+            }
+        });
     }
 
+    //for navigation drawer
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item){
+        if(toggle.onOptionsItemSelected(item))
+            return true;
+        return super.onOptionsItemSelected(item);
+    }
     public void requestPermission() {
         if (ActivityCompat.checkSelfPermission(MainActivity.this, PERMISSION_LOCATION_FINE) == PackageManager.PERMISSION_GRANTED) {
             PermissionGranted = true;
@@ -185,9 +227,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
         if(list.size()>0){
             Address address=list.get(0);
-            for(int i=0;i<list.size();i++){
-            Log.d("MainActivity",list.get(i).toString());}
-            Log.d("MainActivity",list.get(0).getPostalCode());
+//            for(int i=0;i<list.size();i++){
+//            Log.d("MainActivity",list.get(i).toString());}
+//            Log.d("MainActivity",list.get(0).getPostalCode());
             moveCamera(new LatLng(address.getLatitude(),address.getLongitude()),DEFAULT_ZOOM, address.getAddressLine(0));
 
 
@@ -202,7 +244,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         try {
             isGpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-            return true;
+            return isGpsEnabled;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -216,7 +258,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         if (!isGpsEnabled && !isNetworkEnabled) {
             Toast.makeText(this, "Your location is turned off, \n please Turn On", Toast.LENGTH_SHORT).show();
-
             // You can prompt the user to enable location services here
         }
         return false;
@@ -250,8 +291,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                             Location currentlocation= (Location) location.getResult();
 
-
-                            moveCamera(new LatLng(currentlocation.getLatitude(),currentlocation.getLongitude()),DEFAULT_ZOOM,"My Location" );
+                            CameraUpdate update=CameraUpdateFactory.newLatLngZoom(new LatLng(currentlocation.getLatitude(),currentlocation.getLongitude()),DEFAULT_ZOOM);
+                            mMap.animateCamera(update);
+//                            moveCamera(new LatLng(currentlocation.getLatitude(),currentlocation.getLongitude()),DEFAULT_ZOOM,"My Location" );
                         }else {
 
                             Toast.makeText(MainActivity.this, "unable to get current location", Toast.LENGTH_SHORT).show();
