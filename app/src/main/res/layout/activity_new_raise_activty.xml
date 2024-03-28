@@ -56,13 +56,14 @@
         app:layout_constraintEnd_toStartOf="@id/simage"
         app:layout_constraintTop_toBottomOf="@id/issueET"/>
     <ImageView
-        android:layout_width="200dp"
-        android:layout_height="200dp"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
         android:id="@+id/prevIMG"
         android:layout_marginEnd="15dp"
         android:layout_marginStart="15dp"
-        android:src="@drawable/logo"
         android:layout_marginTop="15dp"
+        android:src="@drawable/logo"
+        app:layout_constraintBottom_toTopOf="@id/submit"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/ocamera"
@@ -75,8 +76,8 @@
         android:layout_marginEnd="15dp"
         android:layout_marginStart="15dp"
         android:layout_marginTop="15dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/prevIMG"/>
-
 </androidx.constraintlayout.widget.ConstraintLayout>
