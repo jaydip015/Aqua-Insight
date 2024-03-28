@@ -75,4 +75,10 @@ dependencies {
 
     //for realtime database
     implementation("com.google.firebase:firebase-database")
+    //for camera
+    implementation ("androidx.camera:camera-core:1.3.0-rc01")
+    implementation ("androidx.camera:camera-camera2:1.3.0-rc01")
+    implementation ("androidx.camera:camera-lifecycle:1.3.0-rc01")
+    implementation ("androidx.camera:camera-view:1.3.0-rc01")
+    implementation ("androidx.camera:camera-extensions:1.3.0-rc01")
 }
