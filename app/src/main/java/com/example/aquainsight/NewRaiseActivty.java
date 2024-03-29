@@ -11,26 +11,31 @@ import androidx.core.content.ContextCompat;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
 import java.io.IOException;
 
 public class NewRaiseActivty extends AppCompatActivity {
     private static final int REQUEST_CODE_PERMISSIONS = 10;
     private static final String[] REQUIRED_PERMISSIONS = new String[]{Manifest.permission.CAMERA};
-
+    EditText et;
     TextView headline;
     ImageButton select,opencmaera;
     ImageView prev;
     Intent i,intent;
+    File file;
+    String path,Mainheadline;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,13 +47,21 @@ public class NewRaiseActivty extends AppCompatActivity {
         select=findViewById(R.id.simage);
         prev=findViewById(R.id.prevIMG);
         opencmaera=findViewById(R.id.ocamera);
+        et=findViewById(R.id.issueET);
 
         //setting data and listener
-        headline.setText(i.getStringExtra("Headline"));
+        setingImage();
+        Mainheadline=i.getStringExtra("Headline");
+        if(getIntent().getStringExtra("EditText")!=null){
+            et.setText(getIntent().getStringExtra("EditText"));
+        }
+        headline.setText(Mainheadline);
         opencmaera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 intent=new Intent(NewRaiseActivty.this, CameraActivty.class);
+                intent.putExtra("EditText",et.getText().toString());
+                intent.putExtra("Headline",Mainheadline);
                 if(allPermissionsGranted()){
                     startActivity(intent);
                 }else {
@@ -69,6 +82,23 @@ public class NewRaiseActivty extends AppCompatActivity {
             }
         });
     }
+
+    private void setingImage() {
+        path=i.getStringExtra("FilePath");
+        try{
+
+            file= new File(path);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        if(path != null){
+            Bitmap bitmap = ImageUtil.decodeBitmapFromFile(file.getAbsolutePath(), 400, 400);
+            prev.setImageBitmap(bitmap);
+        }else {
+            prev.setImageResource(R.drawable.logo);
+        }
+    }
+
     ActivityResultLauncher<Intent> pick=registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
             new ActivityResultCallback<ActivityResult>() {
                 @Override

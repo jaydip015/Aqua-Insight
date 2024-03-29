@@ -74,12 +74,15 @@ public class CameraActivty extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent i=new Intent(CameraActivty.this,NewRaiseActivty.class);
+                i.putExtra("Headline",getIntent().getStringExtra("Headline"));
+                i.putExtra("EditText",getIntent().getStringExtra("EditText"));
                 i.putExtra("FilePath",file.getAbsolutePath());
                 startActivity(i);
 
             }
         });
     }
+
     private void startCamera() {
         cameraProviderFuture.addListener(() -> {
             try {

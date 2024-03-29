@@ -7,8 +7,9 @@
     </style>
     <style name="MainAcitvity.design" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:navigationBarColor">@color/black</item>
-        <item name="colorPrimary">@color/purple_500</item>
-        <item name="colorPrimaryVariant">@color/purple_700</item>
+        <item name="colorPrimary">@color/purple
+        </item>
+        <item name="colorPrimaryVariant">@color/purple</item>
         <item name="colorOnPrimary">@color/white</item>
         <!-- Secondary brand color. -->
         <item name="colorSecondary">@color/teal_200</item>
