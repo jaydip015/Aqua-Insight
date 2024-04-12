@@ -9,12 +9,12 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import android.Manifest;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 
+import com.example.aquainsight.Fragments.MapFragment;
+import com.example.aquainsight.Fragments.Profile;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 
@@ -71,7 +71,6 @@ public class MainActivity extends AppCompatActivity  {
         FragmentManager manager=getSupportFragmentManager();
         FragmentTransaction ft=manager.beginTransaction();
         ft.replace(R.id.container,fragment);
-        ft.addToBackStack(null);
         ft.commit();
     }
 
