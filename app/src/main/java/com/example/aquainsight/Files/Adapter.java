@@ -1,4 +1,4 @@
-package com.example.aquainsight;
+package com.example.aquainsight.Files;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -6,6 +6,8 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.aquainsight.R;
 
 public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
     @NonNull

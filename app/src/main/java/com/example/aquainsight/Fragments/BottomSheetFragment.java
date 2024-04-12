@@ -1,4 +1,7 @@
-package com.example.aquainsight;
+package com.example.aquainsight.Fragments;
+
+import static com.example.aquainsight.NewRaiseActivty.LAT;
+import static com.example.aquainsight.NewRaiseActivty.LONG;
 
 import android.content.Intent;
 import android.location.Address;
@@ -12,6 +15,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.example.aquainsight.NewRaiseActivty;
+import com.example.aquainsight.R;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 import java.util.List;
@@ -48,6 +53,8 @@ public class BottomSheetFragment extends BottomSheetDialogFragment {
             public void onClick(View view) {
                 Intent i=new Intent(getContext(), NewRaiseActivty.class);
                 i.putExtra("Headline",list.get(0).getFeatureName());
+                i.putExtra(LAT,list.get(0).getLatitude());
+                i.putExtra(LONG,list.get(0).getLongitude());
                 startActivity(i);
             }
         });
