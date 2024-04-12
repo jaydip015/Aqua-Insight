@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:map="http://schemas.android.com/apk/res-auto"
-    tools:context=".MapFragment">
+    tools:context=".Fragments.MapFragment">
 
     <fragment
         android:layout_width="match_parent"
@@ -60,5 +60,15 @@
         android:scaleType="centerCrop"
         />
 
-
+    <ImageView
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        map:layout_constraintEnd_toEndOf="parent"
+        map:layout_constraintTop_toBottomOf="@id/gps"
+        android:src="@drawable/map_pin_svgrepo_com"
+        android:id="@+id/pin"
+        android:layout_marginTop="50dp"
+        android:layout_marginEnd="5dp"
+        android:scaleType="centerCrop"
+        />
 </androidx.constraintlayout.widget.ConstraintLayout>

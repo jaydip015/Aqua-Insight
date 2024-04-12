@@ -1,4 +1,4 @@
-package com.example.aquainsight;
+package com.example.aquainsight.Files;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 

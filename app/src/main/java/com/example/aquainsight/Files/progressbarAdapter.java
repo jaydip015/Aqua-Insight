@@ -1,4 +1,4 @@
-package com.example.aquainsight;
+package com.example.aquainsight.Files;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -9,6 +9,8 @@ import android.view.WindowManager;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+
+import com.example.aquainsight.R;
 
 public class progressbarAdapter extends Dialog {
     public progressbarAdapter(@NonNull Context context, String s, String title) {

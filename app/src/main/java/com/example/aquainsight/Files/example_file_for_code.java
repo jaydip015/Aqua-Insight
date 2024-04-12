@@ -1,4 +1,4 @@
-package com.example.aquainsight;
+package com.example.aquainsight.Files;
 
 public class example_file_for_code {
     /**
