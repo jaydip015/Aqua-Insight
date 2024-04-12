@@ -42,6 +42,7 @@ public class RegistrationActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 startActivity(new Intent(RegistrationActivity.this, LoginActivity.class));
+                finish();
             }
         });
         submit.setOnClickListener(new View.OnClickListener() {
