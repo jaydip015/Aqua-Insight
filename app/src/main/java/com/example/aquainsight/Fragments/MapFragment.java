@@ -1,4 +1,4 @@
-package com.example.aquainsight;
+package com.example.aquainsight.Fragments;
 
 import android.Manifest;
 import android.content.Context;
@@ -29,6 +29,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.aquainsight.R;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
@@ -45,22 +46,24 @@ import com.google.android.gms.tasks.Task;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import android.content.pm.PackageManager;
-import android.provider.Settings;
+
 public class MapFragment extends Fragment implements OnMapReadyCallback{
     private final int REQUEST_CODE = 100;
     private static final String PERMISSION_LOCATION_FINE = android.Manifest.permission.ACCESS_FINE_LOCATION;
     private static final String PERMISSION_LOCATION_COARSE = Manifest.permission.ACCESS_COARSE_LOCATION;
+    public static final String DATA="data";
+    public static final String WARN="warning";
     FusedLocationProviderClient fusedLocationProviderClient;
     boolean PermissionGranted;
     GoogleMap mMap;
     float DEFAULT_ZOOM = 18f;
-    ImageView mylocation;
+    ImageView mylocation,pin;
     EditText search;
-    Marker previousMarker;
-    List<Address> list=new ArrayList<>();
+    Marker previousMarker,marker;
+    List<Address> list;
     BottomSheetFragment dialog;
     public static final String TAG = "ModalBottomSheet";
+    Geocoder geocoder;
     public MapFragment() {
         // Required empty public constructor
     }
@@ -72,12 +75,20 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view=inflater.inflate(R.layout.fragment_map, container, false);
+        requestPermission();
+        geocoder=new Geocoder(getContext());
         SupportMapFragment mapFragment=(SupportMapFragment)
                 getChildFragmentManager().findFragmentById(R.id.google_map);
         mylocation=view.findViewById(R.id.gps);
+        pin=view.findViewById(R.id.pin);
         search= view.findViewById(R.id.search);
+        pin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dropMarkerAtCenter();
+            }
+        });
         mapFragment.getMapAsync(this);
-        requestPermission();
         mylocation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -100,28 +111,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
         });
         return view;
     }
-//    @Override
-//    public void onMapReady(GoogleMap googleMap) {
-//        // When map is loaded
-//        googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-//            @Override
-//            public void onMapClick(LatLng latLng) {
-//                // When clicked on map
-//                // Initialize marker options
-//                MarkerOptions markerOptions=new MarkerOptions();
-//                // Set position of marker
-//                markerOptions.position(latLng);
-//                // Set title of marker
-//                markerOptions.title(latLng.latitude+" : "+latLng.longitude);
-//                // Remove all marker
-//                googleMap.clear();
-//                // Animating to zoom the marker
-//                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng,10));
-//                // Add marker on map
-//                googleMap.addMarker(markerOptions);
-//            }
-//        });
-//    }
     public void requestPermission() {
         if (ActivityCompat.checkSelfPermission(getContext(), PERMISSION_LOCATION_FINE) == PackageManager.PERMISSION_GRANTED) {
             PermissionGranted = true;
@@ -151,6 +140,28 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
             ActivityCompat.requestPermissions(getActivity(), new String[]{PERMISSION_LOCATION_FINE, PERMISSION_LOCATION_COARSE}, REQUEST_CODE);
         }
 
+    }
+    private void dropMarkerAtCenter() {
+        if (mMap != null) {
+            mMap.clear();
+            LatLng center = mMap.getCameraPosition().target;
+//            marker = mMap.addMarker(new MarkerOptions().position(center).title("Marker at Center").draggable(true));
+//            mMap.moveCamera(CameraUpdateFactory.newLatLng(center));
+            try {
+                list=new ArrayList<>();
+                list=geocoder.getFromLocation(center.latitude, center.longitude,1);
+                if(list.size()>0){
+                    Address address=list.get(0);
+                    moveCamera(center,DEFAULT_ZOOM, address.getAddressLine(0));
+                }else{
+                    moveCamera(center,17f,center.latitude+" "+ center.longitude);
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            Toast.makeText(getContext(), "Map is not ready yet", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -194,27 +205,46 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
             if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 return;
             }
+            mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+                @Override
+                public void onMapClick(@NonNull LatLng latLng) {
+                    mMap.clear();
+                        list=new ArrayList<>();
+                    try {
+                        list=geocoder.getFromLocation(latLng.latitude,latLng.longitude,1);
+                        if(list.size()>0){
+                            Log.d(DATA,list.toString());
+                            moveCamera(latLng,DEFAULT_ZOOM, list.get(0).getAddressLine(0));
+
+                        }
+                    } catch (IOException e) {
+                        Log.w(WARN,e.getMessage());
+                        throw new RuntimeException(e);
+                    }
+                }
+            });
             mMap.setMyLocationEnabled(true);
             mMap.getUiSettings().setCompassEnabled(false);
             mMap.getUiSettings().setMyLocationButtonEnabled(false);
 
         }
-
     }
     private void geo_locate(){
+        mMap.clear();
         String sresult=search.getText().toString();
-        Geocoder geocoder=new Geocoder(getContext());
-
+        list=new ArrayList<>();
         try {
             list=geocoder.getFromLocationName(sresult,3);
         }catch (IOException e){
+            Log.w("war",e.getMessage());
+            if(!sresult.isEmpty()){
+                Log.w("war","no input text");
+            }
 
         }
         if(list.size()>0){
             Address address=list.get(0);
-//            for(int i=0;i<list.size();i++){
-//            Log.d("MainActivity",list.get(i).toString());}
-//            Log.d("MainActivity",list.get(0).getPostalCode());
+            Log.d("data",list.toString());
             moveCamera(new LatLng(address.getLatitude(),address.getLongitude()),DEFAULT_ZOOM, address.getAddressLine(0));
 
         }
@@ -249,7 +279,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
         if (previousMarker != null) {
             previousMarker.remove();
         }
-
+        Log.d("data",list.toString());
         // Add new marker for the searched location
         previousMarker = mMap.addMarker(new MarkerOptions().position(latLng).title(title));
         CameraUpdate update=CameraUpdateFactory.newLatLngZoom(latLng,zoom);
