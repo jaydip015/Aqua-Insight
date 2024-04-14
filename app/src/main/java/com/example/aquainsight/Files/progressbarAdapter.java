@@ -25,6 +25,7 @@ public class progressbarAdapter extends Dialog {
         TextView tv=v.findViewById(R.id.loading_text);
         TextView titl=v.findViewById(R.id.titl);
         tv.setText(s);
+        titl.setText(title);
         setContentView(v);
     }
 

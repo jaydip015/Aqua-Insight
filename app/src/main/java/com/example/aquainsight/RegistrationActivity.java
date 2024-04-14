@@ -1,9 +1,13 @@
 package com.example.aquainsight;
 
+import static com.example.aquainsight.NewRaiseActivty.RISSUES;
+import static com.example.aquainsight.NewRaiseActivty.USERS;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.PersistableBundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -20,6 +24,10 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class RegistrationActivity extends AppCompatActivity {
 
@@ -27,7 +35,7 @@ public class RegistrationActivity extends AppCompatActivity {
     EditText emailET,passwordET,nameET;
     Button submit;
     TextView back;
-
+    FirebaseFirestore db;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,6 +46,7 @@ public class RegistrationActivity extends AppCompatActivity {
         nameET=findViewById(R.id.nameETR);
         submit=findViewById(R.id.submitR);
         back=findViewById(R.id.havit);
+        db=FirebaseFirestore.getInstance();
         back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -61,7 +70,16 @@ public class RegistrationActivity extends AppCompatActivity {
                     UserProfileChangeRequest request=new UserProfileChangeRequest.Builder().setDisplayName(name).build();
                     FirebaseUser user=authResult.getUser();
                     user.updateProfile(request);
-
+                    Map<String ,Object> UerData=new HashMap<>();
+                    UerData.put("Name",name);
+                    UerData.put("Email",email);
+                    UerData.put(RISSUES,null);
+                    db.collection(USERS).document(auth.getUid()).set(UerData).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.w("War",e.getMessage());
+                        }
+                    });
                     startActivity(new Intent(RegistrationActivity.this, LoginActivity.class));
                     finish();
                 }
