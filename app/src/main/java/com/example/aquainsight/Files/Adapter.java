@@ -1,6 +1,7 @@
 package com.example.aquainsight.Files;
 
 import static com.example.aquainsight.NewRaiseActivty.ADD;
+import static com.example.aquainsight.NewRaiseActivty.ISSUE;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,6 +32,7 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         holder.headline.setText(data.get(position).get(ADD).toString());
+        holder.issue.setText(data.get(position).get(ISSUE).toString());
 
     }
 
@@ -41,12 +43,14 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
 
     public class ViewHolder extends RecyclerView.ViewHolder{
         TextView headline,
-                Reviewed;
+                Reviewed,
+                issue;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             headline=itemView.findViewById(R.id.FHeadline);
             Reviewed=itemView.findViewById(R.id.Reviewed);
+            issue=itemView.findViewById(R.id.CIssue);
         }
     }
 }
