@@ -10,14 +10,18 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
+import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.location.Address;
 import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -26,15 +30,21 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.bumptech.glide.Glide;
 import com.example.aquainsight.Files.ImageUtil;
 import com.example.aquainsight.Files.progressbarAdapter;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
 import java.io.IOException;
@@ -57,14 +67,16 @@ public class NewRaiseActivty extends AppCompatActivity {
             USERS="Users";
     FirebaseAuth auth;
     FirebaseFirestore db;
+    StorageReference reference;
     String CUserID;
     Button submit;
     EditText et;
     TextView headline;
-    ImageButton select,opencmaera;
+    ImageButton select, open_camera;
     ImageView prev;
     Intent i,intent;
     File file;
+    Uri link;
     String path,Mainheadline;
     progressbarAdapter progressDialog;
 
@@ -77,10 +89,11 @@ public class NewRaiseActivty extends AppCompatActivity {
         //initialization
         auth=FirebaseAuth.getInstance();
         db=FirebaseFirestore.getInstance();
+        reference= FirebaseStorage.getInstance().getReference().child("Reported Images");
         headline=findViewById(R.id.headlineNR);
         select=findViewById(R.id.simage);
         prev=findViewById(R.id.prevIMG);
-        opencmaera=findViewById(R.id.ocamera);
+        open_camera =findViewById(R.id.ocamera);
         et=findViewById(R.id.issueET);
         submit=findViewById(R.id.submit);
         //setting data and listener
@@ -99,7 +112,7 @@ public class NewRaiseActivty extends AppCompatActivity {
                 checking();
             }
         });
-        opencmaera.setOnClickListener(new View.OnClickListener() {
+        open_camera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 intent=new Intent(NewRaiseActivty.this, CameraActivty.class);
@@ -131,8 +144,8 @@ public class NewRaiseActivty extends AppCompatActivity {
     private void checking() {
         Geocoder geocoder=new Geocoder(this);
         String issue=et.getText().toString();
-        Double lattitude=i.getDoubleExtra(LAT,0);
-        Double longitude=i.getDoubleExtra(LONG,0);
+        double lattitude=i.getDoubleExtra(LAT,0);
+        double longitude=i.getDoubleExtra(LONG,0);
         if(lattitude!=0 &&longitude!=0){
             try {
 
@@ -160,10 +173,10 @@ public class NewRaiseActivty extends AppCompatActivity {
         map.put(LONG,list.get(0).getLongitude());
         map.put(ID,CUserID);
         map.put(ADD,list.get(0).getAddressLine(0));
-        if(FILEPATH==null){
+        if(link==null){
             map.put(LINK,"NA");
         }else {
-            map.put(LINK,"link");
+            map.put(LINK,link);
         }
         db.collection(ICOLLECTION).add(map)
                 .addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
@@ -213,15 +226,17 @@ public class NewRaiseActivty extends AppCompatActivity {
 
     private void setingImage() {
         path=i.getStringExtra(FILEPATH);
-        try{
-
-            file= new File(path);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
         if(path != null){
+            try{
+                file= new File(path);
+                Log.d("tad",path);
+                Uri ri= Uri.fromFile(file);
+                uploadPhoto(ri);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
             Bitmap bitmap = ImageUtil.decodeBitmapFromFile(file.getAbsolutePath(), 400, 400);
-            prev.setImageBitmap(bitmap);
+//            prev.setImageBitmap(bitmap);
         }else {
             prev.setImageResource(R.drawable.logo);
         }
@@ -233,8 +248,10 @@ public class NewRaiseActivty extends AppCompatActivity {
                 public void onActivityResult(ActivityResult result) {
                     if(result.getResultCode()==RESULT_OK){
                         Intent data=result.getData();
-                        Uri musicUri=data.getData();
-                        prev.setImageURI(musicUri);
+                        Uri ImageUri=data.getData();
+                        Log.d("taf",ImageUri.toString());
+//                        prev.setImageURI(ImageUri);
+                        uploadPhoto(ImageUri);
 
                     }
 
@@ -247,6 +264,54 @@ public class NewRaiseActivty extends AppCompatActivity {
             }
         }
         return true;
+    }
+    private File getFileFromUri(Uri uri) {
+        Context context = getApplicationContext();
+        String scheme = uri.getScheme();
+        if (scheme != null) {
+            if (scheme.equals(ContentResolver.SCHEME_CONTENT)) {
+                // Handle content URIs
+                String[] projection = {MediaStore.Images.Media.DATA};
+                Cursor cursor = context.getContentResolver().query(uri, projection, null, null, null);
+                if (cursor != null && cursor.moveToFirst()) {
+                    int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+                    String filePath = cursor.getString(columnIndex);
+                    cursor.close();
+                    return new File(filePath);
+                }
+            } else if (scheme.equals(ContentResolver.SCHEME_FILE)) {
+                // Handle file URIs
+                return new File(uri.getPath());
+            } else {
+                // Handle other URIs
+                // For example, if the URI is a Firebase Storage download URL, you might need to download the file first
+            }
+        }
+        return null;
+    }
+    public void uploadPhoto(Uri u){
+        File f=getFileFromUri(u);
+        progressDialog=new progressbarAdapter(NewRaiseActivty.this,"Please Wait ... \n ","Uploading Photo  ");
+        progressDialog.show();
+        StorageReference storageReference=reference.child(f.getName());
+        storageReference.putFile(u).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                storageReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                    @Override
+                    public void onSuccess(Uri uri) {
+                        link=uri;
+                        Glide.with(getApplicationContext()).load(uri).into(prev);
+                        progressDialog.dismiss();
+                    }
+                });
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.w("war",e.getMessage());
+            }
+        });
     }
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {

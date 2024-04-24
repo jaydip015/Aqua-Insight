@@ -68,7 +68,7 @@ dependencies {
     implementation ("com.google.android.gms:play-services-location:21.1.0")
 
     implementation("com.google.firebase:firebase-analytics")
-    implementation(platform("com.google.firebase:firebase-bom:32.7.4"))
+    implementation(platform("com.google.firebase:firebase-bom:32.8.1"))
 
     //for authentication
     implementation("com.google.firebase:firebase-auth:22.1.1")
@@ -76,10 +76,14 @@ dependencies {
     //for realtime database
     implementation("com.google.firebase:firebase-database")
     implementation("com.google.firebase:firebase-firestore")
+    implementation("com.google.firebase:firebase-storage")
     //for camera
     implementation ("androidx.camera:camera-core:1.3.0-rc01")
     implementation ("androidx.camera:camera-camera2:1.3.0-rc01")
     implementation ("androidx.camera:camera-lifecycle:1.3.0-rc01")
     implementation ("androidx.camera:camera-view:1.3.0-rc01")
     implementation ("androidx.camera:camera-extensions:1.3.0-rc01")
+
+    implementation ("com.github.bumptech.glide:glide:4.16.0")
+
 }
