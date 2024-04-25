@@ -9,13 +9,16 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.BitmapFactory;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
-
+import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.BitmapDrawable;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
@@ -43,6 +46,8 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -52,10 +57,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
-
+import android.graphics.Bitmap;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -163,8 +165,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
         if (mMap != null) {
 //            mMap.clear();
             LatLng center = mMap.getCameraPosition().target;
-//            marker = mMap.addMarker(new MarkerOptions().position(center).title("Marker at Center").draggable(true));
-//            mMap.moveCamera(CameraUpdateFactory.newLatLng(center));
             try {
                 list=new ArrayList<>();
                 list=geocoder.getFromLocation(center.latitude, center.longitude,1);
@@ -223,6 +223,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
             if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 return;
             }
+            mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                @Override
+                public boolean onMarkerClick(Marker marker) {
+                    // Perform action when marker is clicked
+                    // For example, show a toast
+                    Log.d("latlong",marker.getPosition().toString());
+//                    Toast.makeText(MainActivity.this, "Marker clicked!", Toast.LENGTH_SHORT).show();
+                    return true; // Return true to indicate that the click event is consumed
+                }
+            });
             mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
                 @Override
                 public void onMapClick(@NonNull LatLng latLng) {
@@ -257,6 +267,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
                     Map<String,Object> map=document.getData();
                     LatLng l=new LatLng((Double) map.get(LAT),(Double)map.get(LONG));
                     rmarker=mMap.addMarker(new MarkerOptions().position(l));
+                    rmarker.setIcon(bitmapDescriptorFromVector(R.drawable.reported_pin, 100, 100));
                 }
                 progressDialog.dismiss();
             }
@@ -268,6 +279,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
 
             }
         });
+    }
+    private BitmapDescriptor bitmapDescriptorFromVector(int vectorResId, int width, int height) {
+        Drawable vectorDrawable = getResources().getDrawable(vectorResId);
+        Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        vectorDrawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+        vectorDrawable.draw(canvas);
+        return BitmapDescriptorFactory.fromBitmap(bitmap);
     }
 
     private void geo_locate(){
