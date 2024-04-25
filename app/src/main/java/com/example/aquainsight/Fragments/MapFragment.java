@@ -125,6 +125,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
 
                 if(i== EditorInfo.IME_ACTION_SEARCH){
                     geo_locate();
+                    if(list.size()>0){
+                        Address address=list.get(0);
+                        Log.d("data",list.toString());
+                        moveCamera(new LatLng(address.getLatitude(),address.getLongitude()),DEFAULT_ZOOM, address.getAddressLine(0));
+
+                    }
                 }
                 return false;
             }
@@ -302,12 +308,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
             }
 
         }
-        if(list.size()>0){
-            Address address=list.get(0);
-            Log.d("data",list.toString());
-            moveCamera(new LatLng(address.getLatitude(),address.getLongitude()),DEFAULT_ZOOM, address.getAddressLine(0));
 
-        }
     }
     private boolean checkLocationEnabled() {
         LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
