@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -70,11 +71,13 @@ public class LoginActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess(AuthResult authResult) {
                     progressDialog.dismiss();
-                    int i=auth.getUid().compareTo("Tha7aDZ7oXUvxEeexkqmFXRwvbv1");
+                    int i=auth.getUid().compareTo("lGML0s6CpWS0UydapVMPpSb2lSZ2");
                     if(i==0){
+                        Log.d("t","1");
                         startActivity(new Intent(LoginActivity.this,AdminActivity.class));
                         finish();
                     }else {
+                        Log.d("t","2");
                         startActivity(new Intent(LoginActivity.this,MainActivity.class));
                         finish();
                     }
@@ -96,7 +99,7 @@ public class LoginActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         if(auth.getCurrentUser() !=null){
-            int i=auth.getUid().compareTo("Tha7aDZ7oXUvxEeexkqmFXRwvbv1");
+            int i=auth.getUid().compareTo("lGML0s6CpWS0UydapVMPpSb2lSZ2");
             if(i==0){
 //                        Toast.makeText(LoginActivity.this, "true", Toast.LENGTH_SHORT).show();
                 startActivity(new Intent(LoginActivity.this,AdminActivity.class));
