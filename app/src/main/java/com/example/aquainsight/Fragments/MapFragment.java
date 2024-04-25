@@ -1,5 +1,9 @@
 package com.example.aquainsight.Fragments;
 
+import static com.example.aquainsight.NewRaiseActivty.ICOLLECTION;
+import static com.example.aquainsight.NewRaiseActivty.LAT;
+import static com.example.aquainsight.NewRaiseActivty.LONG;
+
 import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -29,6 +33,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.aquainsight.Files.progressbarAdapter;
+import com.example.aquainsight.NewRaiseActivty;
 import com.example.aquainsight.R;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -41,11 +47,19 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class MapFragment extends Fragment implements OnMapReadyCallback{
     private final int REQUEST_CODE = 100;
@@ -59,11 +73,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
     float DEFAULT_ZOOM = 18f;
     ImageView mylocation,pin;
     EditText search;
-    Marker previousMarker,marker;
+    Marker previousMarker,rmarker;
     List<Address> list;
     BottomSheetFragment dialog;
     public static final String TAG = "ModalBottomSheet";
     Geocoder geocoder;
+    FirebaseFirestore db;
+    progressbarAdapter progressDialog;
     public MapFragment() {
         // Required empty public constructor
     }
@@ -76,6 +92,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
         // Inflate the layout for this fragment
         View view=inflater.inflate(R.layout.fragment_map, container, false);
         requestPermission();
+        db=FirebaseFirestore.getInstance();
+        fetchfromALlissue();
         geocoder=new Geocoder(getContext());
         SupportMapFragment mapFragment=(SupportMapFragment)
                 getChildFragmentManager().findFragmentById(R.id.google_map);
@@ -143,7 +161,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
     }
     private void dropMarkerAtCenter() {
         if (mMap != null) {
-            mMap.clear();
+//            mMap.clear();
             LatLng center = mMap.getCameraPosition().target;
 //            marker = mMap.addMarker(new MarkerOptions().position(center).title("Marker at Center").draggable(true));
 //            mMap.moveCamera(CameraUpdateFactory.newLatLng(center));
@@ -208,7 +226,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
             mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
                 @Override
                 public void onMapClick(@NonNull LatLng latLng) {
-                    mMap.clear();
                         list=new ArrayList<>();
                     try {
                         list=geocoder.getFromLocation(latLng.latitude,latLng.longitude,1);
@@ -229,8 +246,32 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
 
         }
     }
+    private void fetchfromALlissue(){
+        progressDialog=new progressbarAdapter(getContext(),"Please Wait ... \n ","Fetching Reported Issues ");
+        progressDialog.show();
+        db.collection(ICOLLECTION).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                for (QueryDocumentSnapshot document : task.getResult()) {
+                    Log.d("Maps", document.getId() + " => " + document.getData());
+                    Map<String,Object> map=document.getData();
+                    LatLng l=new LatLng((Double) map.get(LAT),(Double)map.get(LONG));
+                    rmarker=mMap.addMarker(new MarkerOptions().position(l));
+                }
+                progressDialog.dismiss();
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.w("war",e.getMessage());
+                progressDialog.dismiss();
+
+            }
+        });
+    }
+
     private void geo_locate(){
-        mMap.clear();
+//        mMap.clear();
         String sresult=search.getText().toString();
         list=new ArrayList<>();
         try {
@@ -287,8 +328,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
         //opening bottom sheet fragment
         dialog=new BottomSheetFragment(list);
         dialog.show(getActivity().getSupportFragmentManager(),TAG);
-
-
 
     }
     private void getDeviceLocation(){

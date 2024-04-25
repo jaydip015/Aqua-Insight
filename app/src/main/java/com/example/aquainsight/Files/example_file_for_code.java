@@ -81,3 +81,21 @@ public class example_file_for_code {
  *    extras=null]
  */
 }
+/**
+ * db.collection(ICOLLECTION).whereEqualTo(LAT,22.2194652).whereEqualTo(LONG,70.7109425).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+ *             @Override
+ *             public void onComplete(@NonNull Task<QuerySnapshot> task) {
+ *                 for (QueryDocumentSnapshot document : task.getResult()) {
+ *                     Map<String,Object> map=document.getData();
+ *
+ *                     Log.d("tag", " "+ map);
+ *                 }
+ *
+ *             }
+ *         }).addOnFailureListener(new OnFailureListener() {
+ *             @Override
+ *             public void onFailure(@NonNull Exception e) {
+ *                 Log.w("war",e.getMessage());
+ *             }
+ *         });
+ */
