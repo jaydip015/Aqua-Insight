@@ -1,5 +1,6 @@
 package com.example.aquainsight.Fragments;
 
+import static com.example.aquainsight.NewRaiseActivty.ADD;
 import static com.example.aquainsight.NewRaiseActivty.LAT;
 import static com.example.aquainsight.NewRaiseActivty.LONG;
 
@@ -24,11 +25,11 @@ public class Adminbottomsheet extends BottomSheetDialogFragment {
     Button delete,showImage;
     TextView headline,address,issue;
     String is;
-    ArrayList<Map<String,Object>> data;
+    Map<String,Object> data;
 
-    public Adminbottomsheet(Marker marker, ArrayList<Map<String,Object>> mapArrayList) {
+    public Adminbottomsheet(Marker marker, Map<String,Object> map) {
         is= (String) marker.getTag();
-        this.data=mapArrayList;
+        this.data=map;
     }
 
     @Override
@@ -48,6 +49,7 @@ public class Adminbottomsheet extends BottomSheetDialogFragment {
         address=view.findViewById(R.id.addressA);
         issue=view.findViewById(R.id.issueA);
         issue.setText(is);
+        address.setText(data.get(ADD).toString());
         return view;
     }
 }

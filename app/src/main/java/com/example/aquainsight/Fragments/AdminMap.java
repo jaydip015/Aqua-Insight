@@ -1,5 +1,6 @@
 package com.example.aquainsight.Fragments;
 
+import static com.example.aquainsight.NewRaiseActivty.ADD;
 import static com.example.aquainsight.NewRaiseActivty.ICOLLECTION;
 import static com.example.aquainsight.NewRaiseActivty.ISSUE;
 import static com.example.aquainsight.NewRaiseActivty.LAT;
@@ -45,6 +46,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -171,11 +173,22 @@ public class AdminMap extends Fragment implements OnMapReadyCallback {
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
-                dialog=new Adminbottomsheet(marker,data);
+                int index=findIndexByIssue(data,marker.getTag().toString());
+                dialog=new Adminbottomsheet(marker,data.get(index));
                 dialog.show(getActivity().getSupportFragmentManager(),ATAG);
-                Log.d("data",""+data.size());
                 return true; // Return true to indicate that the click event is consumed
             }
         });
     }
+    int findIndexByIssue(ArrayList<Map<String,Object>> data, String issueToFind) {
+        for (int i = 0; i < data.size(); i++) {
+            Map<String, Object> map = data.get(i);
+            Object issue = map.get(ISSUE);
+            if (issue != null && issue.equals(issueToFind)) {
+                return i; // Return the index if the issue is found
+            }
+        }
+        return -1; // Return -1 if the issue is not found
+    }
+
 }
