@@ -2,6 +2,7 @@ package com.example.aquainsight.Fragments;
 
 import static com.example.aquainsight.NewRaiseActivty.ADD;
 import static com.example.aquainsight.NewRaiseActivty.LAT;
+import static com.example.aquainsight.NewRaiseActivty.LINK;
 import static com.example.aquainsight.NewRaiseActivty.LONG;
 
 import android.content.Intent;
@@ -14,8 +15,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.example.aquainsight.NewRaiseActivty;
 import com.example.aquainsight.R;
 import com.google.android.gms.maps.model.Marker;
@@ -28,6 +32,7 @@ import java.util.Map;
 
 public class Adminbottomsheet extends BottomSheetDialogFragment {
     Button delete,showImage;
+    ImageView img;
     TextView headline,address,issue;
     String is;
     Map<String,Object> data;
@@ -53,9 +58,30 @@ public class Adminbottomsheet extends BottomSheetDialogFragment {
         headline=view.findViewById(R.id.headingA);
         address=view.findViewById(R.id.addressA);
         issue=view.findViewById(R.id.issueA);
+        img=view.findViewById(R.id.rimage);
+        img.setVisibility(View.GONE);
         issue.setText(is);
         address.setText(data.get(ADD).toString());
         geo_locate();
+        delete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+        showImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String link=(String) data.get(LINK);
+                int i=link.compareTo("link");
+                if(i==0){
+                    Toast.makeText(getContext(), "Image not provided by reporting user", Toast.LENGTH_SHORT).show();
+                }else{
+                    img.setVisibility(View.VISIBLE);
+                    Glide.with(getContext()).load(data.get(LINK)).into(img);
+                }
+            }
+        });
         return view;
     }
     private void geo_locate(){
