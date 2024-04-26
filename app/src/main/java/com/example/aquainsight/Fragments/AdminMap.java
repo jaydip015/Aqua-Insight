@@ -59,6 +59,7 @@ public class AdminMap extends Fragment implements OnMapReadyCallback {
     public static final String ATAG = "ModalBottomSheet";
     private Geocoder geocoder;
     Adminbottomsheet dialog;
+    ArrayList<Map<String,Object>> data;
     public AdminMap() {
         // Required empty public constructor
     }
@@ -76,6 +77,7 @@ public class AdminMap extends Fragment implements OnMapReadyCallback {
         // Inflate the layout for this fragment
         View view=inflater.inflate(R.layout.fragment_admin_map, container, false);
         db=FirebaseFirestore.getInstance();
+        data=new ArrayList<>();
         fetchfromALlissue();
         geocoder=new Geocoder(getContext());
         SupportMapFragment mapFragment=(SupportMapFragment)
@@ -108,6 +110,7 @@ public class AdminMap extends Fragment implements OnMapReadyCallback {
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 for (QueryDocumentSnapshot document : task.getResult()) {
                     Map<String,Object> map=document.getData();
+                    data.add(map);
                     LatLng l=new LatLng((Double) map.get(LAT),(Double)map.get(LONG));
                     rmarker=mMap.addMarker(new MarkerOptions().position(l));
                     rmarker.setIcon(bitmapDescriptorFromVector(R.drawable.reported_pin, 100, 100));
@@ -168,8 +171,9 @@ public class AdminMap extends Fragment implements OnMapReadyCallback {
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
-                dialog=new Adminbottomsheet(marker);
+                dialog=new Adminbottomsheet(marker,data);
                 dialog.show(getActivity().getSupportFragmentManager(),ATAG);
+                Log.d("data",""+data.size());
                 return true; // Return true to indicate that the click event is consumed
             }
         });
