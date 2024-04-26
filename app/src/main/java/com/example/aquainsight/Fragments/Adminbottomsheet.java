@@ -5,7 +5,10 @@ import static com.example.aquainsight.NewRaiseActivty.LAT;
 import static com.example.aquainsight.NewRaiseActivty.LONG;
 
 import android.content.Intent;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,7 +21,9 @@ import com.example.aquainsight.R;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class Adminbottomsheet extends BottomSheetDialogFragment {
@@ -50,6 +55,18 @@ public class Adminbottomsheet extends BottomSheetDialogFragment {
         issue=view.findViewById(R.id.issueA);
         issue.setText(is);
         address.setText(data.get(ADD).toString());
+        geo_locate();
         return view;
+    }
+    private void geo_locate(){
+        Geocoder geocoder=new Geocoder(getContext());
+        List<Address> list;
+        try {
+            list=geocoder.getFromLocation((double)data.get(LAT),(double)data.get(LONG),3);
+            headline.setText(list.get(0).getFeatureName());
+            Log.d("test",list.get(0).toString());
+        }catch (IOException e){
+            Log.w("war",e.getMessage());
+        }
     }
 }
