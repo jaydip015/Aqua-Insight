@@ -2,6 +2,7 @@ package com.example.aquainsight.Files;
 
 import static com.example.aquainsight.NewRaiseActivty.ADD;
 import static com.example.aquainsight.NewRaiseActivty.ISSUE;
+import static com.example.aquainsight.NewRaiseActivty.SEEN;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,7 +34,11 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         holder.headline.setText(data.get(position).get(ADD).toString());
         holder.issue.setText(data.get(position).get(ISSUE).toString());
-
+        boolean review=(boolean) data.get(position).get(SEEN);
+        if(review==true)
+            holder.Reviewed.setText("true");
+        else
+            holder.Reviewed.setText("false");
     }
 
     @Override
