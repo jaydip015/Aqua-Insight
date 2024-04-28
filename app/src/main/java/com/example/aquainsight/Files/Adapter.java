@@ -36,9 +36,9 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
         holder.issue.setText(data.get(position).get(ISSUE).toString());
         boolean review=(boolean) data.get(position).get(SEEN);
         if(review==true)
-            holder.Reviewed.setText("true");
+            holder.Reviewed.setText("Yes");
         else
-            holder.Reviewed.setText("false");
+            holder.Reviewed.setText("No");
     }
 
     @Override

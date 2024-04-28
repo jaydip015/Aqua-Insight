@@ -29,6 +29,7 @@
         android:layout_height="wrap_content"
         android:text="here is the best price in india for your reference mate report joi e che na lidhe na lidhe na na na ki website"
         android:id="@+id/CIssue"
+        android:textColor="@color/black"
         android:textSize="18dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
