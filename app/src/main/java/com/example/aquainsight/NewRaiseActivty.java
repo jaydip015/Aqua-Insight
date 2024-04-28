@@ -65,7 +65,8 @@ public class NewRaiseActivty extends AppCompatActivity {
             ICOLLECTION="All Issues",
             RISSUES="Reported Issue",
             USERS="Users",
-            SEEN="seen";
+            SEEN="seen",
+            DOCID="Document ID";
     FirebaseAuth auth;
     FirebaseFirestore db;
     StorageReference reference;
@@ -188,6 +189,8 @@ public class NewRaiseActivty extends AppCompatActivity {
                             DocumentReference hashMapRef = task.getResult();
                             // Reference the HashMap document in child nodes
                             String hashMapDocId = hashMapRef.getId();
+                            map.put(DOCID,hashMapDocId);
+                            db.collection(ICOLLECTION).document(hashMapDocId).update(map);
                             AddreferenceInUser(hashMapDocId);
 
                         }
