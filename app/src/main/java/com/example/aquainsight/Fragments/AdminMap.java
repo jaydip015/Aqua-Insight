@@ -1,6 +1,6 @@
 package com.example.aquainsight.Fragments;
 
-import static com.example.aquainsight.NewRaiseActivty.ADD;
+import static com.example.aquainsight.NewRaiseActivty.DOCID;
 import static com.example.aquainsight.NewRaiseActivty.ICOLLECTION;
 import static com.example.aquainsight.NewRaiseActivty.ISSUE;
 import static com.example.aquainsight.NewRaiseActivty.LAT;
@@ -40,17 +40,13 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -119,7 +115,11 @@ public class AdminMap extends Fragment implements OnMapReadyCallback {
                     data.add(map);
                     LatLng l=new LatLng((Double) map.get(LAT),(Double)map.get(LONG));
                     rmarker=mMap.addMarker(new MarkerOptions().position(l));
-                    rmarker.setIcon(bitmapDescriptorFromVector(R.drawable.reported_pin, 100, 100));
+                    if((boolean)map.get(SEEN)==true){
+                        rmarker.setIcon(bitmapDescriptorFromVector(R.drawable.reviewd_reported_pin, 100, 100));
+                    }else {
+                        rmarker.setIcon(bitmapDescriptorFromVector(R.drawable.reported_pin, 100, 100));
+                    }
                     rmarker.setTag(map.get(ISSUE));
                 }
                 progressDialog.dismiss();
@@ -142,7 +142,6 @@ public class AdminMap extends Fragment implements OnMapReadyCallback {
         return BitmapDescriptorFactory.fromBitmap(bitmap);
     }
     private void geo_locate(){
-//        mMap.clear();
         String sresult=search.getText().toString();
         list=new ArrayList<>();
         try {
@@ -178,30 +177,20 @@ public class AdminMap extends Fragment implements OnMapReadyCallback {
             @Override
             public boolean onMarkerClick(Marker marker) {
                 int index=findIndexByIssue(data,marker.getTag().toString());
-                db.collection(ICOLLECTION).whereEqualTo(LAT,data.get(index).get(LAT)).whereEqualTo(LONG,data.get(index).get(LONG)).get().
-                        addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                QuerySnapshot querySnapshot=task.getResult();
-                                List<DocumentSnapshot> documents =querySnapshot.getDocuments();
-                                for (DocumentSnapshot document : documents) {
-                                    // Get the document reference
-                                    DocumentReference docRef = document.getReference();
-                                    db.collection(ICOLLECTION).document(docRef.getId()).update(SEEN,true);
-                                }
-                            }
-                        }).addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Log.w("warn",e.getMessage());
-                            }
-                        });
-                dialog=new Adminbottomsheet(marker,data.get(index));
-                dialog.show(getActivity().getSupportFragmentManager(),ATAG);
+                if(true == ((boolean)data.get(index).get(SEEN))){
+                    dialog=new Adminbottomsheet(marker,data.get(index),db);
+                    dialog.show(getActivity().getSupportFragmentManager(),ATAG);
+                }else {
+                    db.collection(ICOLLECTION).document(data.get(index).get(DOCID).toString()).update(SEEN,true);
+                    dialog=new Adminbottomsheet(marker,data.get(index),db);
+                    dialog.show(getActivity().getSupportFragmentManager(),ATAG);
+                }
+
                 return true; // Return true to indicate that the click event is consumed
             }
         });
     }
+
     int findIndexByIssue(ArrayList<Map<String,Object>> data, String issueToFind) {
         for (int i = 0; i < data.size(); i++) {
             Map<String, Object> map = data.get(i);
