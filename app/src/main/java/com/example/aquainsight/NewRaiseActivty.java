@@ -64,7 +64,8 @@ public class NewRaiseActivty extends AppCompatActivity {
             FILEPATH="FilePath",
             ICOLLECTION="All Issues",
             RISSUES="Reported Issue",
-            USERS="Users";
+            USERS="Users",
+            SEEN="seen";
     FirebaseAuth auth;
     FirebaseFirestore db;
     StorageReference reference;
@@ -173,6 +174,7 @@ public class NewRaiseActivty extends AppCompatActivity {
         map.put(LONG,list.get(0).getLongitude());
         map.put(ID,CUserID);
         map.put(ADD,list.get(0).getAddressLine(0));
+        map.put(SEEN,false);
         if(link==null){
             map.put(LINK,"NA");
         }else {
